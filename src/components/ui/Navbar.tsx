@@ -32,12 +32,73 @@ export function Navbar() {
       justifyContent: 'space-between',
       padding: '0 2rem',
     }}>
-      {/* Monogram */}
-      <span style={{
-        fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.2rem',
-        color: 'var(--accent-cyan)', letterSpacing: '-0.02em',
-        cursor: 'pointer', textShadow: '0 0 20px rgba(0,245,255,0.4)',
-      }} onClick={() => lenis?.scrollTo(0)}>UM</span>
+      {/* Monogram / SVG Logo */}
+      <div 
+        onClick={() => lenis?.scrollTo(0)} 
+        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+      >
+        <svg 
+          width="84" 
+          height="45" 
+          viewBox="0 0 700 365" 
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ display: 'block' }}
+        >
+          <defs>
+            {/* Glow for orange dot */}
+            <filter id="softglow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="6" result="blur"/>
+              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+            </filter>
+          </defs>
+
+          {/* U */}
+          <rect x="160" y="82" width="18" height="130" fill="#FFFFFF" rx="2"/>
+          <rect x="262" y="82" width="18" height="130" fill="#FFFFFF" rx="2"/>
+
+          <path
+            d="M160 200 Q160 250 220 250 Q280 250 280 200"
+            fill="none"
+            stroke="#FFFFFF"
+            strokeWidth="18"
+            strokeLinecap="round"
+          />
+
+          {/* M */}
+          <rect x="330" y="82" width="18" height="195" fill="#FFFFFF" rx="2"/>
+
+          <path
+            d="M330 82 L430 178 L530 82"
+            fill="none"
+            stroke="#FFFFFF"
+            strokeWidth="18"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          <rect x="530" y="82" width="18" height="195" fill="#FFFFFF" rx="2"/>
+
+          {/* Orange Dot */}
+          <circle
+            cx="580"
+            cy="92"
+            r="12"
+            fill="#00F5FF"
+            filter="url(#softglow)"
+          />
+
+          {/* Bottom Line */}
+          <line
+            x1="170"
+            y1="310"
+            x2="520"
+            y2="310"
+            stroke="#00F5FF"
+            strokeWidth="12"
+            opacity="1.0"
+          />
+        </svg>
+      </div>
 
       {/* Desktop Nav Links */}
       {!isMobile && (

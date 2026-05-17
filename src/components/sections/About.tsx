@@ -1,5 +1,4 @@
 import { useLayoutEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import { portfolioData } from '../../data/portfolioData'
@@ -26,7 +25,7 @@ export function About() {
       if (textRef.current) {
         const words = portfolioData.summary.split(' ')
         textRef.current.innerHTML = words
-          .map(w => `<span class="word-span" style="opacity:0;display:inline-block;margin-right:0.3em">${w}</span>`)
+          .map(w => `<span class="word-span" style="opacity:0;display:inline-block;margin-right:0.3em;will-change:opacity,transform">${w}</span>`)
           .join('')
 
         gsap.to('#about .word-span', {
@@ -40,6 +39,19 @@ export function About() {
           }
         })
       }
+
+      // FIX: Animate stat cards via GSAP too (not whileInView inside a pin)
+      gsap.from('.stat-card', {
+        opacity: 0,
+        y: 40,
+        stagger: 0.15,
+        scrollTrigger: {
+          trigger: '#about',
+          start: 'top top',
+          end: '+=40%',
+          scrub: 1,
+        },
+      })
     }, sectionRef)
     return () => ctx.revert()
   }, [])
@@ -53,13 +65,10 @@ export function About() {
         display: 'flex', alignItems: 'center',
         padding: '6rem 2rem 4rem',
         zIndex: 10,
+        willChange: 'transform', // GPU layer for the pin
       }}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 60 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
+      <div
         style={{
           maxWidth: '1200px', margin: '0 auto',
           display: 'grid', gridTemplateColumns: '45% 55%',
@@ -110,14 +119,10 @@ export function About() {
 
           {/* Stats Row */}
           <div className="stats-row" style={{ display: 'flex', gap: '1.5rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
-            {portfolioData.stats.map((stat, i) => (
-              <motion.div 
+            {portfolioData.stats.map((stat) => (
+              <div 
                 key={stat.label} 
                 className="stat-card" 
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.8 }}
-                transition={{ duration: 0.6, delay: 0.4 + (i * 0.15), ease: "easeOut" }}
                 style={{
                   padding: '1rem 1.5rem',
                   background: 'var(--bg-surface)',
@@ -138,7 +143,7 @@ export function About() {
                 }}>
                   {stat.label}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
@@ -146,7 +151,7 @@ export function About() {
             View Projects ↓
           </MagneticButton>
         </div>
-      </motion.div>
+      </div>
     </section>
   )
 }

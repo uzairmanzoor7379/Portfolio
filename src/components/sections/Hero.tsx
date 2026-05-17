@@ -8,6 +8,7 @@ export function Hero() {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
+      gsap.set('.hero-content', { willChange: 'transform, opacity' })
       gsap.to('.hero-content', {
         opacity: 0, y: -30,
         scrollTrigger: {
@@ -15,6 +16,7 @@ export function Hero() {
           start: 'top top',
           end: '30% top',
           scrub: true,
+          fastScrollEnd: true,
         }
       })
     }, sectionRef)

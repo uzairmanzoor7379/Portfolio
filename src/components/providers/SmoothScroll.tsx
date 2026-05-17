@@ -16,15 +16,49 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
   const lenisRef = useRef<LenisRef>(null)
 
   useEffect(() => {
+    let lenisInitialized = false
+
     // GSAP drives the RAF loop — NOT Lenis
     function update(time: number) {
-      lenisRef.current?.lenis?.raf(time * 1000)
+      const lenis = lenisRef.current?.lenis
+      if (lenis) {
+        lenis.raf(time * 1000)
+
+        // Initialize scrollerProxy once lenis is fully instantiated
+        if (!lenisInitialized) {
+          lenisInitialized = true
+
+          // Tell ScrollTrigger to use Lenis's scroll position
+          ScrollTrigger.scrollerProxy(document.body, {
+            scrollTop(value) {
+              if (arguments.length && value !== undefined) {
+                lenis.scrollTo(value, { immediate: true })
+              }
+              return lenis.scroll
+            },
+            getBoundingClientRect() {
+              return {
+                top: 0,
+                left: 0,
+                width: window.innerWidth,
+                height: window.innerHeight,
+              }
+            },
+            pinType: document.body.style.transform ? 'transform' : 'fixed',
+          })
+
+          // Update ScrollTrigger on scroll
+          lenis.on('scroll', ScrollTrigger.update)
+        }
+      }
     }
+
     gsap.ticker.add(update)
     gsap.ticker.lagSmoothing(0)
 
     return () => {
       gsap.ticker.remove(update)
+      lenisRef.current?.lenis?.off('scroll', ScrollTrigger.update)
     }
   }, [])
 

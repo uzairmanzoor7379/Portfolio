@@ -76,3 +76,57 @@ body::after {
   z-index: 99999;
 }
 .skip-link:focus { top: 0; }
+
+/* === PERFORMANCE LAYER HINTS === */
+
+/* Promote scroll-animated elements to their own GPU layer */
+#hero,
+#about,
+#projects,
+#experience {
+  will-change: transform;
+}
+
+/* Hero content fades on scroll via GSAP — promote it */
+.hero-content {
+  will-change: transform, opacity;
+}
+
+/* Word spans in About get opacity + y animated */
+#about .word-span {
+  will-change: opacity, transform;
+}
+
+/* Experience timeline bullet points */
+.exp-bullet {
+  will-change: opacity, transform;
+}
+
+/* The animated timeline line */
+#experience > div > div > div > div:first-child {
+  will-change: transform;
+}
+
+/* 
+  The body::after noise overlay uses position:fixed with an SVG filter.
+  This causes a full-page repaint every frame. 
+  Fix: make it its own compositing layer.
+*/
+body::after {
+  will-change: opacity; /* forces GPU layer isolation */
+  transform: translateZ(0);
+}
+
+/* 
+  Cards with backdropFilter are expensive. Limit blur repaints
+  by containing them. Add this to every frosted-glass card.
+*/
+.stat-card,
+.edu-card,
+#experience .exp-card {
+  position: relative;
+  backdrop-filter: none !important; /* remove */
+  background: rgba(13, 13, 20, 0.85) !important; /* opaque-ish fallback */
+  will-change: transform;
+  transform: translateZ(0);
+}

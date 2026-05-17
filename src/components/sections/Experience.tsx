@@ -9,7 +9,7 @@ export function Experience() {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(lineRef.current, { scaleY: 0 }, {
+      gsap.to(lineRef.current, {
         scaleY: 1, transformOrigin: 'top center', ease: 'none',
         scrollTrigger: { trigger: '#experience', start: 'top 60%', end: 'bottom 40%', scrub: 1 }
       })
@@ -28,12 +28,12 @@ export function Experience() {
         <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: '4rem' }}>Where I've worked.</h2>
 
         <div style={{ position: 'relative', paddingLeft: '2rem' }}>
-          <div ref={lineRef} style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '2px', background: 'var(--accent-cyan)', transformOrigin: 'top center' }} />
+          <div ref={lineRef} style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '2px', background: 'var(--accent-cyan)', transformOrigin: 'top center', willChange: 'transform', transform: 'scaleY(0)' }} />
           <div style={{ position: 'absolute', left: '-5px', top: 0, width: '12px', height: '12px', borderRadius: '50%', background: 'var(--accent-cyan)', boxShadow: 'var(--glow-cyan)' }} />
 
           {portfolioData.experience.map((job) => (
             <div key={job.company} style={{ marginBottom: '3rem' }}>
-              <div style={{
+              <div className="exp-card" style={{
                 background: 'rgba(13, 13, 20, 0.5)',
                 backdropFilter: 'blur(16px)',
                 padding: '2.5rem',

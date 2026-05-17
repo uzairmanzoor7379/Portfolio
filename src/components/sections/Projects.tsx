@@ -1,6 +1,6 @@
 // Projects.tsx — ONLY this file changed. All other sections untouched.
-import { useLayoutEffect, useRef, useEffect } from 'react'
-import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
+import { useLayoutEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import { portfolioData } from '../../data/portfolioData'
@@ -15,29 +15,22 @@ gsap.registerPlugin(ScrollTrigger)
 // Card: odd index  (1,3...) → enters from center, exits/enters from left
 const cardVariants = {
   initial: (isEven: boolean) => ({
-    x: isEven ? '30vw' : '-30vw',
+    x: isEven ? '20vw' : '-20vw',
     opacity: 0,
-    scale: 0.9,
-    rotateY: isEven ? 5 : -5,
   }),
   animate: {
     x: 0,
     opacity: 1,
-    scale: 1,
-    rotateY: 0,
     transition: {
-      duration: 0.9,
+      duration: 0.6,
       ease: [0.16, 1, 0.3, 1] as const,
-      opacity: { duration: 0.5 },
     },
   },
   exit: (isEven: boolean) => ({
-    x: isEven ? '-40vw' : '40vw',
+    x: isEven ? '-20vw' : '20vw',
     opacity: 0,
-    scale: 0.85,
-    rotateY: isEven ? -8 : 8,
     transition: {
-      duration: 0.7,
+      duration: 0.4,
       ease: [0.7, 0, 0.84, 0] as const,
     },
   }),
@@ -81,22 +74,6 @@ function ProjectMockup({
   project: (typeof portfolioData.projects)[number]
   isEven: boolean
 }) {
-  // Subtle floating idle animation
-  const floatY = useMotionValue(0)
-  const smoothFloatY = useSpring(floatY, { stiffness: 40, damping: 12 })
-
-  useEffect(() => {
-    let frame: number
-    let t = 0
-    const animate = () => {
-      t += 0.012
-      floatY.set(Math.sin(t) * 6)
-      frame = requestAnimationFrame(animate)
-    }
-    frame = requestAnimationFrame(animate)
-    return () => cancelAnimationFrame(frame)
-  }, [floatY])
-
   return (
     <motion.div
       custom={isEven}
@@ -106,7 +83,7 @@ function ProjectMockup({
       exit="exit"
       style={{
         position: 'relative',
-        y: smoothFloatY,
+        animation: 'float 3s ease-in-out infinite',
         // On even: mockup sits LEFT side. On odd: RIGHT side.
         // Positioning is handled by the parent flex layout.
       }}
@@ -531,33 +508,42 @@ export function Projects() {
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
 
+    let pendingIndex: number | null = null;
+    let rafId: number | null = null;
+
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: 'top top',
-        // Reduced the scroll distance: 50% (50vh) per project instead of 100%
         end: `+=${totalProjects * 45}%`,
         pin: true,
         pinSpacing: true,
+        lazy: true,
         onEnter: () => setProjectsActive(true),
         onLeave: () => setProjectsActive(false),
         onEnterBack: () => setProjectsActive(true),
         onLeaveBack: () => setProjectsActive(false),
-        onUpdate: (self) => {
-          // Calculate which project should be active based on scroll progress.
-          // Multiply progress by total projects, but subtract a tiny fraction 
-          // so progress 1.0 doesn't overflow to index 2.
+        onUpdate: (self: any) => {
           const rawIndex = Math.floor(self.progress * totalProjects * 0.99);
-          const nextIndex = Math.max(0, Math.min(totalProjects - 1, rawIndex));
+          const newIndex = Math.max(0, Math.min(totalProjects - 1, rawIndex));
 
-          if (nextIndex !== useStore.getState().activeProjectIndex) {
-            setActiveProjectIndex(nextIndex);
+          if (newIndex !== pendingIndex) {
+            pendingIndex = newIndex;
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(() => {
+              if (pendingIndex !== null) {
+                setActiveProjectIndex(pendingIndex);
+              }
+            });
           }
         }
-      })
+      } as any)
     }, sectionRef)
 
-    return () => ctx.revert()
+    return () => {
+      ctx.revert();
+      if (rafId) cancelAnimationFrame(rafId);
+    }
   }, [setProjectsActive, setActiveProjectIndex, totalProjects])
 
   const currentProject = projects[activeProjectIndex]
