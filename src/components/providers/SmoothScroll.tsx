@@ -8,6 +8,10 @@ import TextPlugin from 'gsap/TextPlugin'
 // Register ALL GSAP plugins here — do it once, globally
 gsap.registerPlugin(ScrollTrigger, TextPlugin)
 
+// Optimize GSAP for mobile and high-performance scroll
+ScrollTrigger.config({ ignoreMobileResize: true })
+// ScrollTrigger.normalizeScroll(true) — Removed because it causes jitter in Three.js backgrounds
+
 export function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<LenisRef>(null)
 
@@ -19,17 +23,8 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     gsap.ticker.add(update)
     gsap.ticker.lagSmoothing(0)
 
-    // CRITICAL: Sync ScrollTrigger with Lenis scroll events
-    const lenis = lenisRef.current?.lenis
-    if (lenis) {
-      lenis.on('scroll', () => {
-        ScrollTrigger.update()
-      })
-    }
-
     return () => {
       gsap.ticker.remove(update)
-      if (lenis) lenis.off('scroll', ScrollTrigger.update)
     }
   }, [])
 

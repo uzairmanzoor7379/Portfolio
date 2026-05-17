@@ -14,6 +14,7 @@ interface StoreState {
   isProjectsActive: boolean
   activeProjectIndex: number
   formSuccess: boolean
+  scrollY: number
   setMouse: (x: number, y: number, rawX: number, rawY: number) => void
   setHover: (isHovering: boolean, hoverTarget?: string | null) => void
   setScrollProgress: (progress: number) => void
@@ -22,6 +23,7 @@ interface StoreState {
   setProjectsActive: (active: boolean) => void
   setActiveProjectIndex: (index: number) => void
   setFormSuccess: (v: boolean) => void
+  setScrollY: (y: number) => void
 }
 
 export const useStore = create<StoreState>((set) => ({
@@ -37,6 +39,7 @@ export const useStore = create<StoreState>((set) => ({
   isProjectsActive: false,
   activeProjectIndex: 0,
   formSuccess: false,
+  scrollY: 0,
   setMouse: (x, y, rawX, rawY) => set((state) => {
     // Only update if mouse moved more than 0.005 units to save renders
     if (Math.abs(state.mouseX - x) < 0.005 && Math.abs(state.mouseY - y) < 0.005) return state;
@@ -62,4 +65,8 @@ export const useStore = create<StoreState>((set) => ({
     return { activeProjectIndex: index };
   }),
   setFormSuccess: (v) => set({ formSuccess: v }),
+  setScrollY: (y) => set((state) => {
+    if (state.scrollY === y) return state;
+    return { scrollY: y };
+  }),
 }))

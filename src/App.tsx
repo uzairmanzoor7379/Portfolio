@@ -1,4 +1,4 @@
-import { lazy, Suspense, useLayoutEffect, useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Scene } from './components/3D/Scene'
 import { CustomCursor } from './components/ui/CustomCursor'
 import { Navbar } from './components/ui/Navbar'
@@ -36,44 +36,48 @@ function AppContent() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  useLayoutEffect(() => {
-    if (!isLoaded) return
-    const sections = ['hero', 'about', 'skills', 'projects', 'experience', 'education', 'contact']
-    const triggers: ScrollTrigger[] = []
-
-    const initTriggers = () => {
-      // Clear existing triggers to prevent duplicates
-      triggers.forEach(t => t.kill());
-      triggers.length = 0;
-
-      const allExist = sections.every(id => document.getElementById(id));
-      if (!allExist) {
-        gsap.delayedCall(0.2, initTriggers);
-        return;
-      }
-
-      sections.forEach((id) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const trigger = ScrollTrigger.create({
-          trigger: el,
-          start: 'top 50%',
-          end: 'bottom 50%',
-          onEnter: () => setActiveSection(id),
-          onEnterBack: () => setActiveSection(id),
-          fastScrollEnd: true,
-          preventOverlaps: true
-        });
-        triggers.push(trigger);
+  useEffect(() => {
+    if (!isLoaded) return;
+    
+    const sections = ['hero', 'about', 'skills', 'projects', 'experience', 'education', 'contact'];
+    
+    // Use native IntersectionObserver instead of GSAP.
+    // This is 100% immune to GSAP pin-spacer shifts because it strictly checks
+    // if the actual DOM element is currently intersecting the viewport.
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
       });
-      ScrollTrigger.refresh();
-    };
+    }, {
+      root: null,
+      // Creates a razor-thin line in the exact center of the screen.
+      // This guarantees no overlapping states and buttery-smooth single triggers.
+      rootMargin: '-50% 0px -49% 0px',
+      threshold: 0
+    });
 
-    initTriggers()
+    // We use an interval to continuously try attaching observers 
+    // to handle React's lazy loading Suspense boundaries without race conditions.
+    const interval = setInterval(() => {
+      let allFound = true;
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          // IntersectionObserver automatically handles re-observing safely
+          observer.observe(el);
+        } else {
+          allFound = false;
+        }
+      });
+      if (allFound) clearInterval(interval);
+    }, 500);
 
     return () => {
-      triggers.forEach((t) => t.kill())
-    }
+      clearInterval(interval);
+      observer.disconnect();
+    };
   }, [isLoaded, setActiveSection])
 
   return (

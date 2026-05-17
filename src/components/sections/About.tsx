@@ -40,15 +40,6 @@ export function About() {
           }
         })
       }
-
-      gsap.from('.stat-card', {
-        opacity: 0, y: 40, stagger: 0.1,
-        scrollTrigger: {
-          trigger: '.stats-row',
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        }
-      })
     }, sectionRef)
     return () => ctx.revert()
   }, [])
@@ -67,8 +58,8 @@ export function About() {
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-100px' }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] as const }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
         style={{
           maxWidth: '1200px', margin: '0 auto',
           display: 'grid', gridTemplateColumns: '45% 55%',
@@ -119,13 +110,20 @@ export function About() {
 
           {/* Stats Row */}
           <div className="stats-row" style={{ display: 'flex', gap: '1.5rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
-            {portfolioData.stats.map((stat) => (
-              <div key={stat.label} className="stat-card" style={{
-                padding: '1rem 1.5rem',
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '12px', textAlign: 'center',
-              }}>
+            {portfolioData.stats.map((stat, i) => (
+              <motion.div 
+                key={stat.label} 
+                className="stat-card" 
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.8 }}
+                transition={{ duration: 0.6, delay: 0.4 + (i * 0.15), ease: "easeOut" }}
+                style={{
+                  padding: '1rem 1.5rem',
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '12px', textAlign: 'center',
+                }}>
                 <div style={{
                   fontFamily: 'var(--font-display)', fontWeight: 700,
                   fontSize: 'clamp(1.5rem, 3vw, 2rem)',
@@ -140,7 +138,7 @@ export function About() {
                 }}>
                   {stat.label}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 

@@ -31,7 +31,7 @@ export function HeroScene() {
   }, [isLoaded])
 
   useFrame((_, delta) => {
-    const { mouseX, mouseY, scrollProgress } = useStore.getState()
+    const { mouseX, mouseY } = useStore.getState()
     if (!localGroupRef.current || !isLoaded) return
 
     // Parallax and scroll movement (only fully active after intro)
@@ -41,9 +41,25 @@ export function HeroScene() {
     localGroupRef.current.position.x = THREE.MathUtils.damp(localGroupRef.current.position.x, -mouseX * 0.5 * parallaxFactor, 2.5, delta)
     localGroupRef.current.position.y = THREE.MathUtils.damp(localGroupRef.current.position.y, -mouseY * 0.3 * parallaxFactor, 2.5, delta)
 
-    // Push group away on scroll
+    // Push group away on scroll and fade out sequentially
     if (introFinished.current) {
-      localGroupRef.current.position.z = THREE.MathUtils.damp(localGroupRef.current.position.z, -scrollProgress * 5, 3, delta)
+      const { scrollY } = useStore.getState()
+      const viewportHeight = window.innerHeight
+      const aboutProgress = Math.max(0, Math.min(1, scrollY / viewportHeight))
+      
+      // "jaise text arh h waise hi gyb ho bhr hi trf hi"
+      // Text stays fully stable until aboutProgress is 0.15
+      // Then flies outwards slowly. Camera is at z:5, so it vanishes at z:6.
+      // We stretch this over a 30% scroll range (0.15 to 0.45) for a slower, majestic effect.
+      let heroZ = 0
+      if (aboutProgress > 0.15) {
+        const progressRatio = Math.min(1, (aboutProgress - 0.15) / 0.30)
+        heroZ = progressRatio * 6
+      }
+      
+      localGroupRef.current.position.z = THREE.MathUtils.damp(localGroupRef.current.position.z, heroZ, 5, delta)
+      // Keep scale at 1, let it fly past the camera naturally
+      localGroupRef.current.scale.setScalar(THREE.MathUtils.damp(localGroupRef.current.scale.x, 1, 5, delta))
     }
 
     // Point light follows mouse with snappy damping

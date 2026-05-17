@@ -43,10 +43,11 @@ export function AboutGeometry() {
   useFrame((_, delta) => {
     if (!groupRef.current || !pointsRef.current || !linesRef.current) return
 
-    // Performance optimization: Read scroll directly from store
+    // Read scrollY from store
     const state = useStore.getState()
-    const scrollProgress = state.scrollProgress
-    const sectionAboutProgress = Math.min(1, Math.max(0, (scrollProgress - 0.1) * 7))
+    const scrollY = state.scrollY
+    const viewportHeight = window.innerHeight
+    const aboutProgress = Math.max(0, Math.min(1, scrollY / viewportHeight))
 
     const pointsAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute
     const pointsArr = pointsAttr.array as Float32Array
@@ -124,16 +125,27 @@ export function AboutGeometry() {
     linesRef.current.geometry.setDrawRange(0, lineIndex)
 
     // Entry and rotation with soft damping
-    const targetScale = Math.min(1, sectionAboutProgress * 3.5)
-    groupRef.current.scale.setScalar(THREE.MathUtils.damp(groupRef.current.scale.x, targetScale, 3, delta))
+    // Scale up neurons sequentially after text disappears (progress > 0.40)
+    let targetScale = 0
+    if (aboutProgress > 0.40) {
+      targetScale = Math.min(1, (aboutProgress - 0.40) / 0.60)
+    }
+    groupRef.current.scale.setScalar(THREE.MathUtils.damp(groupRef.current.scale.x, targetScale, 4, delta))
     groupRef.current.rotation.y += 0.001
 
-    const targetX = -2 + sectionAboutProgress * 0.5
-    groupRef.current.position.x = THREE.MathUtils.damp(groupRef.current.position.x, targetX, 3, delta)
+    // Maintain consistent target position at its origin
+    groupRef.current.position.x = THREE.MathUtils.damp(groupRef.current.position.x, 0, 3, delta)
+
+    // Hide the group completely when scale is near 0 to prevent the "glowing dot" artifact
+    if (groupRef.current.scale.x < 0.01) {
+      groupRef.current.visible = false
+    } else {
+      groupRef.current.visible = true
+    }
   })
 
   return (
-    <group ref={groupRef} position={[-2, 0, 0]}>
+    <group ref={groupRef} position={[0, 0, 0]}>
       <points ref={pointsRef}>
         <bufferGeometry>
           <bufferAttribute

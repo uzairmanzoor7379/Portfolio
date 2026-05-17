@@ -6,7 +6,7 @@ import { useStore } from '../../store/useStore'
 import { useIsMobile } from '../../hooks/useMediaQuery'
 import { MagneticButton } from './MagneticButton'
 
-const NAV_LINKS = ['About', 'Skills', 'Projects', 'Experience', 'Contact']
+const NAV_LINKS = ['About', 'Skills', 'Projects', 'Experience', 'Education', 'Contact']
 
 export function Navbar() {
   const scrollProgress = useScrollProgress()
@@ -61,9 +61,11 @@ export function Navbar() {
               {activeSection === link.toLowerCase() && (
                 <motion.div
                   layoutId="nav-underline"
+                  transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.5 }}
                   style={{
                     position: 'absolute', bottom: 0, left: 0, right: 0,
                     height: 1, background: 'var(--accent-cyan)',
+                    boxShadow: '0 0 8px var(--accent-cyan)'
                   }}
                 />
               )}
@@ -74,7 +76,21 @@ export function Navbar() {
 
       {/* Right: CV button + hamburger */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        {!isMobile && <MagneticButton outlined>Download CV</MagneticButton>}
+        {!isMobile && (
+          <MagneticButton
+            outlined
+            onClick={() => {
+              const link = document.createElement('a')
+              link.href = '/Uzair_Manzoor_Resume_ATS.pdf'
+              link.download = 'Uzair_Manzoor_Resume.pdf'
+              document.body.appendChild(link)
+              link.click()
+              document.body.removeChild(link)
+            }}
+          >
+            Download CV
+          </MagneticButton>
+        )}
         {isMobile && (
           <button onClick={() => setMenuOpen(!menuOpen)} style={{
             background: 'none', border: 'none', cursor: 'pointer',

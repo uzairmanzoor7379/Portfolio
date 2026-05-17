@@ -1,7 +1,7 @@
 //Scene.tsx
 import { Canvas } from '@react-three/fiber'
 import { Preload, AdaptiveDpr, PerformanceMonitor, Environment } from '@react-three/drei'
-import { Suspense, useState, useRef } from 'react'
+import { Suspense, useRef } from 'react'
 import { useIsMobile } from '../../hooks/useMediaQuery'
 import { useStore } from '../../store/useStore'
 import { ParticleField } from './ParticleField'
@@ -15,27 +15,43 @@ import { PostProcessing } from './PostProcessing'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 
-function SectionWrapper({ children, isActive }: { children: React.ReactNode, isActive: boolean }) {
+function SectionWrapper({ children, isActive, disableScale = false, position = [0, 0, 0] }: { children: React.ReactNode, isActive: boolean, disableScale?: boolean, position?: [number, number, number] }) {
   const groupRef = useRef<THREE.Group>(null)
+  const activeTime = useRef(0)
   
   useFrame((_, delta) => {
     if (!groupRef.current) return
-    const targetScale = isActive ? 1 : 0
     
-    // Soft, organic damping for the "buttery" scaling effect
+    if (isActive) {
+      activeTime.current += delta
+    } else {
+      activeTime.current = 0
+    }
+
+    let targetScale = 0
+    if (disableScale) {
+      targetScale = 1
+    } else if (isActive && activeTime.current > 0.4) {
+      // 0.4s delay before entering to create a clean gap
+      targetScale = 1
+    }
+    
+    // Fast exit (10), Normal entry (4) for a snappy clear out
+    const dampSpeed = isActive ? 4 : 10
+    
     const currentScale = groupRef.current.scale.x
-    const smoothedScale = THREE.MathUtils.damp(currentScale, targetScale, 4, delta)
+    const smoothedScale = THREE.MathUtils.damp(currentScale, targetScale, dampSpeed, delta)
     groupRef.current.scale.setScalar(smoothedScale)
     
     // Visibility toggle to save draw calls
-    if (groupRef.current.scale.x < 0.01) {
+    if (groupRef.current.scale.x < 0.01 && !disableScale) {
       groupRef.current.visible = false
     } else {
       groupRef.current.visible = true
     }
   })
 
-  return <group ref={groupRef}>{children}</group>
+  return <group ref={groupRef} position={new THREE.Vector3(...position)}>{children}</group>
 }
 
 function SectionManager() {
@@ -46,11 +62,11 @@ function SectionManager() {
     <>
       <ParticleField count={5000} />
 
-      <SectionWrapper isActive={activeSection === 'hero'}>
+      <SectionWrapper isActive={activeSection === 'hero'} disableScale={true}>
         <HeroScene />
       </SectionWrapper>
 
-      <SectionWrapper isActive={activeSection === 'about'}>
+      <SectionWrapper isActive={activeSection === 'about'} position={[-2.8, 0, 0]}>
         <AboutGeometry />
       </SectionWrapper>
 
@@ -74,12 +90,11 @@ function SectionManager() {
 }
 
 export function Scene() {
-  const [, setDpr] = useState(Math.min(1.5, window.devicePixelRatio))
   const isMobile = useIsMobile()
 
   return (
     <Canvas
-      dpr={[1, Math.min(2, window.devicePixelRatio)]}
+      dpr={[1, 1.5]} // Stable DPR range — avoids jitter during resolution shifts
       camera={{ fov: 75, near: 0.1, far: 100, position: [0, 0, 5] }}
       gl={{
         antialias: !isMobile,
@@ -97,10 +112,7 @@ export function Scene() {
       }}
       aria-hidden="true"
     >
-      <PerformanceMonitor
-        onDecline={() => setDpr(1)}
-        onIncline={() => setDpr(Math.min(1.5, window.devicePixelRatio))}
-      />
+      <PerformanceMonitor />
       <AdaptiveDpr pixelated />
 
       <ambientLight intensity={0.2} />

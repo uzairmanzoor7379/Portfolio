@@ -99,18 +99,13 @@ export function ParticleField({ count = 5000 }: ParticleFieldProps) {
   }), [])
 
   useFrame((_, delta) => {
-    const { mouseX, mouseY, scrollProgress } = useStore.getState()
+    const { mouseX, mouseY } = useStore.getState()
 
+    // Scroll link removed to prevent jitter and maintain independent ambient motion
     if (materialRef.current) {
       materialRef.current.uniforms.uTime.value += delta
       // Smoothly update mouse position for the shader
       materialRef.current.uniforms.uMouse.value.lerp(new THREE.Vector2(mouseX, mouseY), 0.1)
-    }
-
-    if (meshRef.current) {
-      // Wind drift linked to scroll (global group movement)
-      meshRef.current.position.x = scrollProgress * 2
-      meshRef.current.position.y = -scrollProgress * 1
     }
   })
 

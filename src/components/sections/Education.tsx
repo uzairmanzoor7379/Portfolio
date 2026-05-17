@@ -1,35 +1,30 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { motion } from 'framer-motion'
-import gsap from 'gsap'
 import { portfolioData } from '../../data/portfolioData'
 import { SkillTag } from '../ui/SkillTag'
 
 export function Education() {
   const sectionRef = useRef<HTMLElement>(null)
 
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from('.edu-card', {
-        opacity: 0, y: 40, stagger: 0.15,
-        scrollTrigger: { trigger: '#education', start: 'top 70%', toggleActions: 'play none none reverse' }
-      })
-    }, sectionRef)
-    return () => ctx.revert()
-  }, [])
+  // Entry animations managed by Framer Motion directly on the elements
 
   return (
     <section id="education" ref={sectionRef} style={{ minHeight: '80vh', padding: '4rem 2rem 8rem 2rem', position: 'relative', zIndex: 10 }}>
       <motion.div initial={{ opacity: 0, y: 60 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] as const }} style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--accent-cyan)', letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: '1.2rem' }}>// 004 — EDUCATION</p>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--accent-cyan)', letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: '1.2rem' }}>// 005 — EDUCATION</p>
         <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: '4rem' }}>Learning never stops.</h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem' }}>
           <div>
             <h3 style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-secondary)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Education</h3>
-            {portfolioData.education.map((edu) => (
+            {portfolioData.education.map((edu, index) => (
               <motion.div 
                 key={edu.degree} 
                 className="edu-card" 
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: index * 0.15 }}
                 whileHover={{ x: 10, backgroundColor: 'rgba(0, 245, 255, 0.05)' }} 
                 style={{ 
                   padding: '2rem 2.5rem', 
@@ -59,10 +54,15 @@ export function Education() {
 
           <div>
             <h3 style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-secondary)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '1.5rem' }}>Certifications</h3>
-            {portfolioData.certifications.map((cert) => (
+            {portfolioData.certifications.map((cert, index) => (
               <motion.div 
                 key={cert.name} 
                 className="edu-card" 
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                // Delay certifications slightly after education for a cascading effect
+                transition={{ duration: 0.5, delay: (portfolioData.education.length + index) * 0.15 }}
                 whileHover={{ x: 10, backgroundColor: 'rgba(0, 245, 255, 0.05)' }} 
                 style={{ 
                   padding: '2rem 2.5rem', 
