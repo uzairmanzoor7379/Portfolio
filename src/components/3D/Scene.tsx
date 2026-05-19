@@ -9,7 +9,6 @@ import { HeroScene } from './HeroScene'
 import { AboutGeometry } from './AboutGeometry'
 import { SkillsOrbs } from './SkillsOrbs'
 import { ProjectCarousel3D } from './ProjectCarousel3D'
-import { ExperienceScene } from './ExperienceScene'
 import { ContactShader } from './ContactShader'
 import { PostProcessing } from './PostProcessing'
 import * as THREE from 'three'
@@ -18,10 +17,8 @@ import { useFrame } from '@react-three/fiber'
 function SectionWrapper({ children, isActive, disableScale = false, position = [0, 0, 0] }: { children: React.ReactNode, isActive: boolean, disableScale?: boolean, position?: [number, number, number] }) {
   const groupRef = useRef<THREE.Group>(null)
   const activeTime = useRef(0)
-  
   useFrame((_, delta) => {
     if (!groupRef.current) return
-    
     if (isActive) {
       activeTime.current += delta
     } else {
@@ -35,14 +32,11 @@ function SectionWrapper({ children, isActive, disableScale = false, position = [
       // 0.4s delay before entering to create a clean gap
       targetScale = 1
     }
-    
     // Fast exit (10), Normal entry (4) for a snappy clear out
     const dampSpeed = isActive ? 4 : 10
-    
     const currentScale = groupRef.current.scale.x
     const smoothedScale = THREE.MathUtils.damp(currentScale, targetScale, dampSpeed, delta)
     groupRef.current.scale.setScalar(smoothedScale)
-    
     // Visibility toggle to save draw calls
     if (groupRef.current.scale.x < 0.01 && !disableScale) {
       groupRef.current.visible = false
@@ -79,7 +73,7 @@ function SectionManager() {
       </SectionWrapper>
 
       <SectionWrapper isActive={activeSection === 'experience'}>
-        <ExperienceScene />
+        {null}
       </SectionWrapper>
 
       <SectionWrapper isActive={activeSection === 'contact'}>

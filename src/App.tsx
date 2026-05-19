@@ -38,9 +38,9 @@ function AppContent() {
 
   useEffect(() => {
     if (!isLoaded) return;
-    
+
     const sections = ['hero', 'about', 'skills', 'projects', 'experience', 'education', 'contact'];
-    
+
     // Use native IntersectionObserver instead of GSAP.
     // This is 100% immune to GSAP pin-spacer shifts because it strictly checks
     // if the actual DOM element is currently intersecting the viewport.

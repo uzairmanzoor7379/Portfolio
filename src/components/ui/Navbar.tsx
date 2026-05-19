@@ -33,28 +33,28 @@ export function Navbar() {
       padding: '0 2rem',
     }}>
       {/* Monogram / SVG Logo */}
-      <div 
-        onClick={() => lenis?.scrollTo(0)} 
+      <div
+        onClick={() => lenis?.scrollTo(0)}
         style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
       >
-        <svg 
-          width="84" 
-          height="45" 
-          viewBox="0 0 700 365" 
+        <svg
+          width="84"
+          height="45"
+          viewBox="0 0 700 365"
           xmlns="http://www.w3.org/2000/svg"
           style={{ display: 'block' }}
         >
           <defs>
             {/* Glow for orange dot */}
             <filter id="softglow" x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur stdDeviation="6" result="blur"/>
-              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+              <feGaussianBlur stdDeviation="6" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
           </defs>
 
           {/* U */}
-          <rect x="160" y="82" width="18" height="130" fill="#FFFFFF" rx="2"/>
-          <rect x="262" y="82" width="18" height="130" fill="#FFFFFF" rx="2"/>
+          <rect x="160" y="82" width="18" height="130" fill="#FFFFFF" rx="2" />
+          <rect x="262" y="82" width="18" height="130" fill="#FFFFFF" rx="2" />
 
           <path
             d="M160 200 Q160 250 220 250 Q280 250 280 200"
@@ -65,7 +65,7 @@ export function Navbar() {
           />
 
           {/* M */}
-          <rect x="330" y="82" width="18" height="195" fill="#FFFFFF" rx="2"/>
+          <rect x="330" y="82" width="18" height="195" fill="#FFFFFF" rx="2" />
 
           <path
             d="M330 82 L430 178 L530 82"
@@ -76,7 +76,7 @@ export function Navbar() {
             strokeLinejoin="round"
           />
 
-          <rect x="530" y="82" width="18" height="195" fill="#FFFFFF" rx="2"/>
+          <rect x="530" y="82" width="18" height="195" fill="#FFFFFF" rx="2" />
 
           {/* Orange Dot */}
           <circle
